@@ -1,33 +1,87 @@
-# NY taxi duration. Задача регрессии
+# DS Project: New York City Taxi Trip Duration
 
-### Постановка задачи  
-Представьте вы заказываете такси из одной точки Нью-Йорка в другую, причем не обязательно конечная точка должна находиться в пределах города. Сколько вы должны будете за нее заплатить? Известно, что стоимость такси в США рассчитывается на основе фиксированной ставки + тарифная стоимость, величина которой зависит от времени и расстояния. Тарифы варьируются в зависимости от города.
+*Business Task*
+A typical taxi company faces a common problem of efficiently assigning the cabs to passengers so that the service is smooth and hassle free. One of main issue is determining the duration of the current trip so it can predict when the cab will be free for the next trip.
 
-В свою очередь время поездки зависит от множества факторов таких как, откуда и куда вы едете, в какое время суток вы совершаете вашу поездку, погодных условий и так далее.
+The data set contains the data regarding several taxi trips and its duration in New York City. 
 
-Таким образом, если мы разработаем алгоритм, способный определять длительность поездки, мы сможем прогнозировать ее стоимость самым тривиальным образом, например, просто умножая стоимость на заданный тариф. Сервисы такси хранят огромные объёмы информации о поездках, включая такие данные как конечная, начальная точка маршрута, дата поездки и ее длительность. Эти данные можно использовать для того, чтобы прогнозировать длительность поездки в автоматическом режиме с привлечением искусственного интеллекта.
+*Technical Task*: Using the data to build a model that predicts the total ride duration of taxi trips in New York City.
 
-**Бизнес-задача:** определить характеристики и с их помощью спрогнозировать длительность поездки такси.
+*Data*: The csv file contains about 1.5 mln rows and 11 columns (10 + 1 target)
 
-**Техническая задача Data Scientist:** построить модель машинного обучения, которая на основе предложенных характеристик клиента будет предсказывать числовой признак - время поездки такси. То есть решить задачу регрессии.
+*Type of ML task*: Regression
 
-**Метрика качества**     
-Использовалась метрика RMSLE. 
+*Metrics*: RMSLE (Root Mean Squared Log Error)
 
-### Краткая информация о данных
-Данные состоят из 4 датасетов: 
-- основной train.csv - датасет содержит данные о почти 1.5 миллионах поездок и 11 характеристиках, которые описывают каждую из поездок;
-- holiday.csv - содержит даты праздников;
-- osrm.csv - навигационная система;
-- weather.csv - данные о погодных условиях.
+[Link to Project](https://github.com/OlesiaFincher/kaggle_taxi_trip_duration/...ipynb
 
-### Этапы работы над проектом  
-1. Знакомство с данными, обработка пропусков и выбросов.
-2. Разведывательный анализ.
-3. Преобразование данных. Проектирование новых признаков и выявление наиболее значимых при построении модели
-4. Решение задачи регрессии: линейная регрессия и решающие деревья.
-5. Решение задачи регрессии: ансамбли моделей и построение прогноза.
+## Introduction
+Work on this project based on the next 6 datasets:
+* taxi_data - dataset for training
+* test_data - dataset for prediction
+* osrm_train - osrm for train part (*OSRM (Open Source Routing Machine) is an open-source router (compute the shortest path)*)
+* osrm_test - osrm for test part
+* holiday_data - dataset with holiday information
+* weather_data - weather dataset
 
-### Результаты
-В итоге лучше всех отработали бустинговые модели, наилучший результат показал catboost.
 
+- train dataset's shape: 1 458644 rows, 11 columns
+- target value: *trip duration*
+
+## Cheking dataset: outliers, duplicates
+- Number of found duplicates: 0
+- Columns with missing values: 0
+
+## EDA. Feature Engineering
+***Creating new features:***
+
+- Time feautures:
+    * pickup_date - date of turning on the meter / start of the trip (without time)
+    * pickup_hour - hour of turning on the counter
+    * pickup_day - day of the week on which the counter was enabled
+    * pickup_holiday
+- Geographic Information:
+    * total_distance - the shortest path (in meter) from start to end
+    * total_travel_time - minimum travel time (in sec) from start to end
+    * number_of_steps -number of driver's discrete steps (turn left / turn right / go straight)
+    * haversine_distance
+    * direction
+    * create 10 geo_clusters by kmeans method based on latitude and longitude coordinates
+- Weather data:
+    * temperature
+    * visibility
+    * wind speed - wind average speed
+    * precip - rainfall
+    * events - weather conditions
+
+***Filling missing values by median or None values***
+
+***Cleaning data from outliers***
+
+## Feature Selection
+- delete non-informative features and variables with data leakage:
+    * id, total_travel_time
+    * dropoff_datetime, pickup_date, dropoff_datetime
+- encoding categorical features:
+    * vendor_id and store_and_fwd_flag - binary encoding
+    * pickup_day_of_week, geo_cluster, events - One-Hot Encoding ((OneHotEncoder))
+- getting 25 meaningful features by SelectKBest method
+- feature normalization by MinMaxScaler
+
+## Machine Learning Models
+- Total feature number: 25
+- Models:
+    * Logistic Regression,
+    * Decision Tree,
+    * Ensembles: Random Forest, Gradient Boosting, CatBoost
+
+- Metric: RMSLE
+
+The best result:
+* *Model*: Ensembles - CatBoost
+* *RMSLE score on valid data*: 0.4
+
+- Top-3 meaningful features:
+    * total_distance
+    * pickup_hour
+    * dropoff_latitude
