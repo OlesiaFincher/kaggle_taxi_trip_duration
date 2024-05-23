@@ -13,7 +13,7 @@ The data set contains the data regarding several taxi trips and its duration in 
 
 *Metrics*: RMSLE (Root Mean Squared Log Error)
 
-[Link to Project](https://github.com/OlesiaFincher/kaggle_taxi_trip_duration/...ipynb
+[Link to Project](https://github.com/OlesiaFincher/kaggle_taxi_trip_duration)
 
 ## Introduction
 Work on this project based on the next 6 datasets:
